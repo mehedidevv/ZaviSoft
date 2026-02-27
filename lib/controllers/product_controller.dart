@@ -31,7 +31,7 @@ import '../models/product_model.dart';
 import '../services/api_service.dart';
 
 class ProductController extends GetxController with GetTickerProviderStateMixin {
-  // ── Observables ──────────────────────────────────────────────────────────
+  ///  Observables
   final RxList<String> categories = <String>[].obs;
   final RxMap<String, List<ProductModel>> productsByCategory =
       <String, List<ProductModel>>{}.obs;
@@ -39,7 +39,7 @@ class ProductController extends GetxController with GetTickerProviderStateMixin 
   final RxMap<String, bool> isLoadingTab = <String, bool>{}.obs;
   final RxString error = ''.obs;
 
-  // ── Tab / Page controllers ────────────────────────────────────────────────
+  /// ── Tab / Page controllers
   late TabController tabController;
   // PageController is intentionally NOT used for tab navigation.
   // We use tabController.index as the source of truth.
@@ -67,8 +67,7 @@ class ProductController extends GetxController with GetTickerProviderStateMixin 
     error.value = '';
     try {
       final cats = await ApiService.getCategories();
-      // Take at most 3 tabs to keep UI clean
-      categories.value = cats.take(3).toList();
+      categories.value = cats.take(5).toList();
 
       tabController = TabController(length: categories.length, vsync: this);
       tabController.addListener(() {
@@ -77,7 +76,7 @@ class ProductController extends GetxController with GetTickerProviderStateMixin 
         }
       });
 
-      // Pre-load first tab
+      /// Pre-load first tab
       if (categories.isNotEmpty) {
         await _loadTabIfNeeded(categories[0]);
       }

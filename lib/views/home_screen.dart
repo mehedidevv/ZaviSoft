@@ -61,35 +61,35 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zavisoft/views/tabContent.dart';
+import 'package:zavisoft/widget/customText.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/product_controller.dart';
-import '../models/product_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final pc = Get.find<ProductController>();
-    final auth = Get.find<AuthController>();
+    final productController = Get.find<ProductController>();
+    final authController = Get.find<AuthController>();
 
     return Obx(() {
-      // Show loading while categories/tabController not ready
-      if (pc.isLoadingCategories.value) {
-        return const Scaffold(
+      if (productController.isLoadingCategories.value) {
+        return  Scaffold(
           body: Center(child: CircularProgressIndicator(color: Color(0xFFE53935))),
         );
       }
-      if (pc.error.value.isNotEmpty) {
+      if (productController.error.value.isNotEmpty) {
         return Scaffold(
           body: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(pc.error.value, style: const TextStyle(color: Colors.red)),
+                Text(productController.error.value, style: const TextStyle(color: Colors.red)),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: pc.refresh,
+                  onPressed: productController.refresh,
                   child: const Text('Retry'),
                 ),
               ],
@@ -99,32 +99,30 @@ class HomeScreen extends StatelessWidget {
       }
 
       return Scaffold(
-        // ── AppBar rendered inside NestedScrollView SliverAppBar
-        // so we use no appbar here
         backgroundColor: const Color(0xFFF5F5F5),
         body: RefreshIndicator(
-          // RefreshIndicator on the outer scroll — works from ANY tab
           color: const Color(0xFFE53935),
-          onRefresh: pc.refresh,
+          onRefresh: productController.refresh,
+          notificationPredicate: (notification) => notification.depth == 2,
           child: NestedScrollView(
-            // headerSliverBuilder builds the collapsible banner + sticky TabBar
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              // ── Collapsible banner with search bar ──────────────────────
               SliverAppBar(
                 expandedHeight: 200,
                 floating: false,
-                pinned: true,           // keeps the toolbar visible when collapsed
+                pinned: true,
                 snap: false,
                 backgroundColor: const Color(0xFFE53935),
                 foregroundColor: Colors.white,
-                title: const Text(
-                  'ZaviSoft',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                title: CustomText(
+                  text: 'ZaviSoft',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.white,
                 ),
                 actions: [
                   IconButton(
                     icon: Obx(() {
-                      final user = auth.user.value;
+                      final user = authController.user.value;
                       return CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.white24,
@@ -141,7 +139,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.logout),
-                    onPressed: auth.logout,
+                    onPressed: authController.logout,
                     tooltip: 'Logout',
                   ),
                 ],
@@ -149,7 +147,7 @@ class HomeScreen extends StatelessWidget {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Banner image
+                      /// Banner image
                       Image.network(
                         'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop',
                         fit: BoxFit.cover,
@@ -157,7 +155,7 @@ class HomeScreen extends StatelessWidget {
                           color: const Color(0xFFB71C1C),
                         ),
                       ),
-                      // Gradient overlay
+                      /// Gradient overlay
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -170,49 +168,24 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // Search bar in expanded area
-                      Positioned(
-                        bottom: 16,
-                        left: 16,
-                        right: 16,
-                        child: Container(
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(22),
-                          ),
-                          child: Row(
-                            children: const [
-                              SizedBox(width: 16),
-                              Icon(Icons.search, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Text(
-                                'Search on ZaviSoft',
-                                style: TextStyle(color: Colors.grey, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+
                     ],
                   ),
                 ),
               ),
 
-              // ── Sticky Tab Bar ────────────────────────────────────────────
-              // SliverPersistentHeader with pinned:true makes the TabBar
-              // sticky after the SliverAppBar collapses.
+              /// -------------------- Sticky Tab Bar -----------------
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _StickyTabBarDelegate(
                   TabBar(
-                    controller: pc.tabController,
-                    isScrollable: pc.categories.length > 3,
+                    controller: productController.tabController,
+                    isScrollable: productController.categories.length > 3,
                     labelColor: const Color(0xFFE53935),
                     unselectedLabelColor: Colors.grey,
                     indicatorColor: const Color(0xFFE53935),
                     indicatorWeight: 3,
-                    tabs: pc.categories
+                    tabs: productController.categories
                         .map((c) => Tab(text: c.toUpperCase()))
                         .toList(),
                   ),
@@ -220,15 +193,12 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
 
-            // ── Body: TabBarView for horizontal navigation ────────────────
-            // TabBarView uses a PageView internally.
-            // Flutter's gesture arena disambiguates horizontal (PageView)
-            // vs vertical (NestedScrollView) gestures automatically.
+            /// ── Body: TabBarView for horizontal navigation ────────────────
             body: TabBarView(
-              controller: pc.tabController,
-              children: pc.categories.map((category) {
-                return _TabContent(
-                  key: PageStorageKey(category), // preserves inner scroll pos
+              controller: productController.tabController,
+              children: productController.categories.map((category) {
+                return TabContent(
+                  key: PageStorageKey(category),
                   category: category,
                 );
               }).toList(),
@@ -269,172 +239,6 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
 }
 
 // ════════════════════════════════════════════════════════════════════
-// _TabContent — product list for one category tab
+/// _TabContent — product list for one category tab
 // ════════════════════════════════════════════════════════════════════
 
-class _TabContent extends StatefulWidget {
-  final String category;
-  const _TabContent({super.key, required this.category});
-
-  @override
-  State<_TabContent> createState() => _TabContentState();
-}
-
-class _TabContentState extends State<_TabContent>
-    with AutomaticKeepAliveClientMixin {
-  // AutomaticKeepAliveClientMixin keeps this tab's state (including inner
-  // scroll position) alive when the user switches to another tab.
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context); // required by AutomaticKeepAliveClientMixin
-    final pc = Get.find<ProductController>();
-
-    return Obx(() {
-      final loading = pc.isTabLoading(widget.category);
-      final products = pc.productsFor(widget.category);
-
-      if (loading && products.isEmpty) {
-        return const Center(
-          child: CircularProgressIndicator(color: Color(0xFFE53935)),
-        );
-      }
-
-      if (products.isEmpty) {
-        // Use CustomScrollView even for empty state so NestedScrollView's
-        // inner scroll coordinator works correctly
-        return CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.inbox, size: 64, color: Colors.grey),
-                    const SizedBox(height: 8),
-                    Text(
-                      'No products in ${widget.category}',
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      }
-
-      // Build a 2-column grid of products using SliverGrid
-      return CustomScrollView(
-        // No independent ScrollController here — NestedScrollView provides
-        // the inner scroll coordinator via InheritedWidget
-        slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(12),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.65,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _ProductCard(product: products[index]),
-                childCount: products.length,
-              ),
-            ),
-          ),
-        ],
-      );
-    });
-  }
-}
-
-// ════════════════════════════════════════════════════════════════════
-// _ProductCard
-// ════════════════════════════════════════════════════════════════════
-
-class _ProductCard extends StatelessWidget {
-  final ProductModel product;
-  const _ProductCard({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product image
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                product.image,
-                fit: BoxFit.contain,
-                width: double.infinity,
-                loadingBuilder: (_, child, progress) {
-                  if (progress == null) return child;
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFFE53935),
-                      strokeWidth: 2,
-                    ),
-                  );
-                },
-                errorBuilder: (_, __, ___) =>
-                const Icon(Icons.broken_image, color: Colors.grey),
-              ),
-            ),
-          ),
-          // Product info
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Color(0xFFFFC107), size: 14),
-                    const SizedBox(width: 2),
-                    Text(
-                      product.rating.rate.toStringAsFixed(1),
-                      style: const TextStyle(fontSize: 11, color: Colors.grey),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${product.rating.count})',
-                      style: const TextStyle(fontSize: 10, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '\$${product.price.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFE53935),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

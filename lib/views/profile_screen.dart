@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zavisoft/widget/customText.dart';
 import '../controllers/auth_controller.dart';
 
 class ProfileScreen extends GetView<AuthController> {
@@ -11,7 +12,11 @@ class ProfileScreen extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title:  CustomText(
+            text: 'My Profile',
+          fontSize: 20,
+          color: Colors.white,
+        ),
         backgroundColor: const Color(0xFFE53935),
         foregroundColor: Colors.white,
         actions: [
@@ -71,6 +76,7 @@ class ProfileScreen extends GetView<AuthController> {
 
   Widget _infoCard(List<Widget> children) {
     return Card(
+      color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 3,
       child: Padding(
