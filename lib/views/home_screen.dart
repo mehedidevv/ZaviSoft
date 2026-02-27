@@ -1,5 +1,4 @@
-// views/home_screen.dart
-//
+
 // ═══════════════════════════════════════════════════════════════════
 // SCROLL ARCHITECTURE & GESTURE DESIGN
 // ═══════════════════════════════════════════════════════════════════
@@ -238,7 +237,5 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
       tabBar != oldDelegate.tabBar;
 }
 
-// ════════════════════════════════════════════════════════════════════
-/// _TabContent — product list for one category tab
-// ════════════════════════════════════════════════════════════════════
+
 
