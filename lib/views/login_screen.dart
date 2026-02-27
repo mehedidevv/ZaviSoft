@@ -102,6 +102,7 @@ class LoginScreen extends GetView<AuthController> {
 
                       heightBox20,
 
+                      ///Log in Button
                       Obx(
                         () => Stack(
                           alignment: Alignment.center,
