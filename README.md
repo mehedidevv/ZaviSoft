@@ -13,7 +13,7 @@ UI complexity.
 
 flutter pub get flutter run
 
-Recommended: Flutter 3.x+
+Recommended: Flutter 3.22.0 or higher (Dart 3.10+)
 
 ------------------------------------------------------------------------
 
