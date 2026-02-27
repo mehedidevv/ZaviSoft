@@ -192,7 +192,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
 
-            /// ── Body: TabBarView for horizontal navigation ────────────────
+            /// -------- Body: TabBarView for horizontal navigation ---------
             body: TabBarView(
               controller: productController.tabController,
               children: productController.categories.map((category) {
@@ -209,9 +209,8 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════
-// _StickyTabBarDelegate — makes TabBar sticky using SliverPersistentHeader
-// ════════════════════════════════════════════════════════════════════
+/// StickyTabBarDelegate — makes TabBar sticky using SliverPersistentHeader
+
 
 class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar tabBar;
